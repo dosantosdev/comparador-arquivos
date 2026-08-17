@@ -1,7 +1,9 @@
 type ComparisonConfigProps = {
   fields: string[];
   selectedIdentifier: string;
+  selectedFields: string[];
   onIdentifierChange: (field: string) => void;
+  onFieldToggle: (field: string) => void;
   onCompare: () => void;
 };
 
@@ -22,7 +24,9 @@ function formatFieldLabel(field: string): string {
 function ComparisonConfig({
   fields,
   selectedIdentifier,
+  selectedFields,
   onIdentifierChange,
+  onFieldToggle,
   onCompare,
 }: ComparisonConfigProps) {
   return (
@@ -52,7 +56,34 @@ function ComparisonConfig({
         </p>
       </div>
 
-      <button type="button" onClick={onCompare} disabled={!selectedIdentifier}>
+      <div className="config-field">
+        <span className="config-label">Quais informações deseja comparar?</span>
+
+        <div className="comparison-fields">
+          {fields.map((field) => (
+            <label className="comparison-field-option" key={field}>
+              <input
+                type="checkbox"
+                checked={selectedFields.includes(field)}
+                onChange={() => onFieldToggle(field)}
+              />
+
+              <span>{formatFieldLabel(field)}</span>
+            </label>
+          ))}
+        </div>
+
+        <p>
+          Selecione as informações que devem ser verificadas entre os dois
+          arquivos.
+        </p>
+      </div>
+
+      <button
+        type="button"
+        onClick={onCompare}
+        disabled={!selectedIdentifier || selectedFields.length === 0}
+      >
         Comparar arquivos
       </button>
     </section>

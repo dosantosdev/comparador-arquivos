@@ -22,6 +22,7 @@ function App() {
     null,
   );
   const [selectedIdentifier, setSelectedIdentifier] = useState('cpf');
+  const [selectedFields, setSelectedFields] = useState<string[]>([]);
   const [showConfig, setShowConfig] = useState(false);
 
   function handlePreviousFile(event: React.ChangeEvent<HTMLInputElement>) {
@@ -34,6 +35,16 @@ function App() {
     const file = event.target.files?.[0] ?? null;
 
     setCurrentFile(file);
+  }
+
+  function handleFieldToggle(field: string) {
+    setSelectedFields((currentFields) => {
+      if (currentFields.includes(field)) {
+        return currentFields.filter((currentField) => currentField !== field);
+      }
+
+      return [...currentFields, field];
+    });
   }
 
   async function handlePrepareComparison() {
@@ -49,6 +60,8 @@ function App() {
       setCurrentData(currentRows);
 
       const fields = getAvailableFields(previousRows, currentRows);
+
+      setSelectedFields(fields);
 
       if (!fields.includes(selectedIdentifier)) {
         setSelectedIdentifier(fields[0] ?? '');
@@ -74,6 +87,7 @@ function App() {
       previousData,
       currentData,
       selectedIdentifier,
+      selectedFields,
     );
 
     console.log('Resultado da comparação:', result);
@@ -154,7 +168,9 @@ function App() {
         <ComparisonConfig
           fields={availableFields}
           selectedIdentifier={selectedIdentifier}
+          selectedFields={selectedFields}
           onIdentifierChange={setSelectedIdentifier}
+          onFieldToggle={handleFieldToggle}
           onCompare={handleCompare}
         />
       )}

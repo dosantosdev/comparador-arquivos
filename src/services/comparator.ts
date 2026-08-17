@@ -2,6 +2,7 @@ import type {
   ComparisonResult,
   Employee,
   ModifiedEmployee,
+  ModifiedField,
 } from '../types/comparison';
 
 function normalizeValue(value: unknown): string {
@@ -20,12 +21,14 @@ function getIdentifier(employee: Employee, identifierField: string): string {
     .toLowerCase();
 }
 
-function compareFields(previous: Employee, current: Employee) {
-  const changes = [];
+function compareFields(
+  previous: Employee,
+  current: Employee,
+  comparisonFields: string[],
+): ModifiedField[] {
+  const changes: ModifiedField[] = [];
 
-  const fields = new Set([...Object.keys(previous), ...Object.keys(current)]);
-
-  fields.forEach((field) => {
+  comparisonFields.forEach((field) => {
     const oldValue = normalizeValue(previous[field]);
     const newValue = normalizeValue(current[field]);
 
@@ -45,6 +48,7 @@ export function compareEmployees(
   previous: Employee[],
   current: Employee[],
   identifierField: string,
+  comparisonFields: string[],
 ): ComparisonResult {
   const previousMap = new Map<string, Employee>();
   const currentMap = new Map<string, Employee>();
@@ -78,7 +82,11 @@ export function compareEmployees(
       return;
     }
 
-    const changes = compareFields(previousEmployee, currentEmployee);
+    const changes = compareFields(
+      previousEmployee,
+      currentEmployee,
+      comparisonFields,
+    );
 
     if (changes.length > 0) {
       modified.push({
