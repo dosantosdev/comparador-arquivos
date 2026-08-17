@@ -1,30 +1,82 @@
+import type { Employee } from '../types/comparison';
+
 type ComparisonResultProps = {
-  previousFile: File | null;
-  currentFile: File | null;
+  previousData: Employee[];
+  currentData: Employee[];
 };
 
 function ComparisonResult({
-  previousFile,
-  currentFile,
+  previousData,
+  currentData,
 }: ComparisonResultProps) {
-  if (!previousFile || !currentFile) {
-    return null;
-  }
-
   return (
     <section className="result-section">
-      <h2>Arquivos selecionados</h2>
+      <h2>Dados encontrados</h2>
 
       <div className="result-files">
         <div>
-          <strong>Arquivo anterior:</strong>
-          <p>{previousFile.name}</p>
+          <strong>Arquivo anterior</strong>
+
+          <p>{previousData.length} funcionários encontrados</p>
         </div>
 
         <div>
-          <strong>Arquivo atual:</strong>
-          <p>{currentFile.name}</p>
+          <strong>Arquivo atual</strong>
+
+          <p>{currentData.length} funcionários encontrados</p>
         </div>
+      </div>
+
+      <h3>Arquivo anterior</h3>
+
+      <div className="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Nome</th>
+              <th>CPF</th>
+              <th>Data admissão</th>
+              <th>Data demissão</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {previousData.map((employee, index) => (
+              <tr key={`previous-${index}`}>
+                <td>{employee.name ?? '-'}</td>
+                <td>{employee.cpf ?? '-'}</td>
+                <td>{employee.admissionDate ?? '-'}</td>
+                <td>{employee.dismissalDate ?? '-'}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Arquivo atual</h3>
+
+      <div className="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Nome</th>
+              <th>CPF</th>
+              <th>Data admissão</th>
+              <th>Data demissão</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {currentData.map((employee, index) => (
+              <tr key={`current-${index}`}>
+                <td>{employee.name ?? '-'}</td>
+                <td>{employee.cpf ?? '-'}</td>
+                <td>{employee.admissionDate ?? '-'}</td>
+                <td>{employee.dismissalDate ?? '-'}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </section>
   );

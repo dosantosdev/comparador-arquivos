@@ -1,12 +1,24 @@
 import { useState } from 'react';
 import './App.css';
 import ComparisonResult from './components/ComparisonResult';
+import ComparisonSummary from './components/ComparisonSummary';
+import ComparisonDetails from './components/ComparisonDetails';
 import { readExcelFile } from './services/excelReader';
+import type {
+  ComparisonResult as ComparisonResultType,
+  Employee,
+} from './types/comparison';
+import { compareEmployees } from './services/comparator';
 
 function App() {
   const [previousFile, setPreviousFile] = useState<File | null>(null);
   const [currentFile, setCurrentFile] = useState<File | null>(null);
   const [showResult, setShowResult] = useState(false);
+  const [previousData, setPreviousData] = useState<Employee[]>([]);
+  const [currentData, setCurrentData] = useState<Employee[]>([]);
+  const [comparison, setComparison] = useState<ComparisonResultType | null>(
+    null,
+  );
 
   function handlePreviousFile(event: React.ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0] ?? null;
@@ -26,15 +38,17 @@ function App() {
     }
 
     try {
-      const previousData = await readExcelFile(previousFile);
-      const currentData = await readExcelFile(currentFile);
+      const previousRows = await readExcelFile(previousFile);
+      const currentRows = await readExcelFile(currentFile);
 
-      console.log('Arquivo anterior:', previousData);
-      console.log('Arquivo atual:', currentData);
+      const result = compareEmployees(previousRows, currentRows);
 
+      setPreviousData(previousRows);
+      setCurrentData(currentRows);
+      setComparison(result);
       setShowResult(true);
     } catch (error) {
-      console.error('Erro ao ler os arquivos:', error);
+      console.error('Erro ao comparar os arquivos:', error);
     }
   }
 
@@ -104,11 +118,17 @@ function App() {
         Comparar arquivos
       </button>
 
-      {showResult && (
-        <ComparisonResult
-          previousFile={previousFile}
-          currentFile={currentFile}
-        />
+      {showResult && comparison && (
+        <>
+          <ComparisonSummary comparison={comparison} />
+
+          <ComparisonDetails comparison={comparison} />
+
+          <ComparisonResult
+            previousData={previousData}
+            currentData={currentData}
+          />
+        </>
       )}
     </main>
   );
