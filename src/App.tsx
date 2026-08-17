@@ -3,6 +3,8 @@ import './App.css';
 import ComparisonResult from './components/ComparisonResult';
 import ComparisonSummary from './components/ComparisonSummary';
 import ComparisonDetails from './components/ComparisonDetails';
+import ComparisonConfig from './components/ComparisonConfig';
+import { getAvailableFields } from './utils/fieldUtils';
 import { readExcelFile } from './services/excelReader';
 import type {
   ComparisonResult as ComparisonResultType,
@@ -19,6 +21,8 @@ function App() {
   const [comparison, setComparison] = useState<ComparisonResultType | null>(
     null,
   );
+  const [selectedIdentifier, setSelectedIdentifier] = useState('cpf');
+  const [showConfig, setShowConfig] = useState(false);
 
   function handlePreviousFile(event: React.ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0] ?? null;
@@ -32,7 +36,7 @@ function App() {
     setCurrentFile(file);
   }
 
-  async function handleCompare() {
+  async function handlePrepareComparison() {
     if (!previousFile || !currentFile) {
       return;
     }
@@ -41,16 +45,44 @@ function App() {
       const previousRows = await readExcelFile(previousFile);
       const currentRows = await readExcelFile(currentFile);
 
-      const result = compareEmployees(previousRows, currentRows);
-
       setPreviousData(previousRows);
       setCurrentData(currentRows);
-      setComparison(result);
-      setShowResult(true);
+
+      const fields = getAvailableFields(previousRows, currentRows);
+
+      if (!fields.includes(selectedIdentifier)) {
+        setSelectedIdentifier(fields[0] ?? '');
+      }
+
+      setShowConfig(true);
+      setShowResult(false);
     } catch (error) {
-      console.error('Erro ao comparar os arquivos:', error);
+      console.error('Erro ao preparar os arquivos:', error);
     }
   }
+
+  function handleCompare() {
+    if (
+      previousData.length === 0 ||
+      currentData.length === 0 ||
+      !selectedIdentifier
+    ) {
+      return;
+    }
+
+    const result = compareEmployees(
+      previousData,
+      currentData,
+      selectedIdentifier,
+    );
+
+    console.log('Resultado da comparação:', result);
+
+    setComparison(result);
+    setShowResult(true);
+  }
+
+  const availableFields = getAvailableFields(previousData, currentData);
 
   return (
     <main className="app">
@@ -110,13 +142,22 @@ function App() {
       </section>
 
       <button
-        className="compare-button"
         type="button"
+        className="prepare-button"
+        onClick={handlePrepareComparison}
         disabled={!previousFile || !currentFile}
-        onClick={handleCompare}
       >
-        Comparar arquivos
+        Preparar comparação
       </button>
+
+      {showConfig && availableFields.length > 0 && (
+        <ComparisonConfig
+          fields={availableFields}
+          selectedIdentifier={selectedIdentifier}
+          onIdentifierChange={setSelectedIdentifier}
+          onCompare={handleCompare}
+        />
+      )}
 
       {showResult && comparison && (
         <>

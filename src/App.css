@@ -51,7 +51,7 @@
   cursor: pointer;
 }
 
-.compare-button {
+.prepare-button {
   display: block;
   margin: 0 auto;
   padding: 14px 30px;
@@ -358,4 +358,60 @@ td {
   .change-values {
     grid-template-columns: 1fr;
   }
+}
+
+.comparison-config {
+  max-width: 1000px;
+  margin: 30px auto 0;
+  padding: 30px;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+}
+
+.comparison-config h2 {
+  margin-top: 0;
+  margin-bottom: 25px;
+}
+
+.config-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 25px;
+}
+
+.config-field label {
+  font-weight: bold;
+}
+
+.config-field select {
+  width: 100%;
+  max-width: 400px;
+  padding: 10px 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background: white;
+  font-size: 1rem;
+}
+
+.config-field p {
+  margin: 0;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.comparison-config button {
+  padding: 11px 22px;
+  border: 1px solid #222;
+  border-radius: 7px;
+  background: #222;
+  color: white;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+.comparison-config button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }

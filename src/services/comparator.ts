@@ -12,8 +12,12 @@ function normalizeValue(value: unknown): string {
     .toLowerCase();
 }
 
-function getCpf(employee: Employee): string {
-  return String(employee.cpf ?? '').replace(/\D/g, '');
+function getIdentifier(employee: Employee, identifierField: string): string {
+  const value = employee[identifierField];
+
+  return String(value ?? '')
+    .trim()
+    .toLowerCase();
 }
 
 function compareFields(previous: Employee, current: Employee) {
@@ -40,23 +44,24 @@ function compareFields(previous: Employee, current: Employee) {
 export function compareEmployees(
   previous: Employee[],
   current: Employee[],
+  identifierField: string,
 ): ComparisonResult {
   const previousMap = new Map<string, Employee>();
   const currentMap = new Map<string, Employee>();
 
   previous.forEach((employee) => {
-    const cpf = getCpf(employee);
+    const identifier = getIdentifier(employee, identifierField);
 
-    if (cpf) {
-      previousMap.set(cpf, employee);
+    if (identifier) {
+      previousMap.set(identifier, employee);
     }
   });
 
   current.forEach((employee) => {
-    const cpf = getCpf(employee);
+    const identifier = getIdentifier(employee, identifierField);
 
-    if (cpf) {
-      currentMap.set(cpf, employee);
+    if (identifier) {
+      currentMap.set(identifier, employee);
     }
   });
 
@@ -65,8 +70,8 @@ export function compareEmployees(
   const modified: ModifiedEmployee[] = [];
   const unchanged: Employee[] = [];
 
-  currentMap.forEach((currentEmployee, cpf) => {
-    const previousEmployee = previousMap.get(cpf);
+  currentMap.forEach((currentEmployee, identifier) => {
+    const previousEmployee = previousMap.get(identifier);
 
     if (!previousEmployee) {
       added.push(currentEmployee);
@@ -85,8 +90,8 @@ export function compareEmployees(
     }
   });
 
-  previousMap.forEach((previousEmployee, cpf) => {
-    if (!currentMap.has(cpf)) {
+  previousMap.forEach((previousEmployee, identifier) => {
+    if (!currentMap.has(identifier)) {
       removed.push(previousEmployee);
     }
   });
