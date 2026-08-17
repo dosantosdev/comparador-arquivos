@@ -1,6 +1,9 @@
+import { normalizeIdentifier } from '../utils/identifier';
+
 import type {
   ComparisonResult,
   Employee,
+  IdentifierIssue,
   ModifiedEmployee,
   ModifiedField,
 } from '../types/comparison';
@@ -9,14 +12,6 @@ function normalizeValue(value: unknown): string {
   return String(value ?? '')
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
-    .trim()
-    .toLowerCase();
-}
-
-function getIdentifier(employee: Employee, identifierField: string): string {
-  const value = employee[identifierField];
-
-  return String(value ?? '')
     .trim()
     .toLowerCase();
 }
@@ -52,21 +47,64 @@ export function compareEmployees(
 ): ComparisonResult {
   const previousMap = new Map<string, Employee>();
   const currentMap = new Map<string, Employee>();
+  const identifierIssues: IdentifierIssue[] = [];
 
-  previous.forEach((employee) => {
-    const identifier = getIdentifier(employee, identifierField);
+  previous.forEach((employee, index) => {
+    const identifier = normalizeIdentifier(
+      employee[identifierField],
+      identifierField,
+    );
 
-    if (identifier) {
-      previousMap.set(identifier, employee);
+    if (!identifier) {
+      identifierIssues.push({
+        row: index + 2,
+        employee,
+        reason: 'missing',
+      });
+
+      return;
     }
+
+    if (previousMap.has(identifier)) {
+      identifierIssues.push({
+        row: index + 2,
+        employee,
+        reason: 'duplicate',
+      });
+
+      return;
+    }
+
+    previousMap.set(identifier, employee);
   });
 
-  current.forEach((employee) => {
-    const identifier = getIdentifier(employee, identifierField);
+  current.forEach((employee, index) => {
+    const identifier = normalizeIdentifier(
+      employee[identifierField],
+      identifierField,
+    );
 
-    if (identifier) {
-      currentMap.set(identifier, employee);
+    if (!identifier) {
+      identifierIssues.push({
+        row: index + 2,
+        employee,
+        reason: 'missing',
+      });
+
+      return;
     }
+
+    if (currentMap.has(identifier)) {
+      identifierIssues.push({
+        row: index + 2,
+        employee,
+        reason: 'duplicate',
+      });
+
+      return;
+    }
+
+    currentMap.set(identifier, employee);
   });
 
   const added: Employee[] = [];
@@ -109,5 +147,6 @@ export function compareEmployees(
     removed,
     modified,
     unchanged,
+    identifierIssues,
   };
 }

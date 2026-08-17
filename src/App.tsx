@@ -4,6 +4,7 @@ import ComparisonResult from './components/ComparisonResult';
 import ComparisonSummary from './components/ComparisonSummary';
 import ComparisonDetails from './components/ComparisonDetails';
 import ComparisonConfig from './components/ComparisonConfig';
+import IdentifierIssues from './components/IdentifierIssues';
 import { getAvailableFields } from './utils/fieldUtils';
 import { readExcelFile } from './services/excelReader';
 import type {
@@ -178,6 +179,8 @@ function App() {
       {showResult && comparison && (
         <>
           <ComparisonSummary comparison={comparison} />
+
+          <IdentifierIssues issues={comparison.identifierIssues} />
 
           <ComparisonDetails comparison={comparison} />
 

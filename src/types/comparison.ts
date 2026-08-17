@@ -24,4 +24,11 @@ export type ComparisonResult = {
   removed: Employee[];
   modified: ModifiedEmployee[];
   unchanged: Employee[];
+  identifierIssues: IdentifierIssue[];
+};
+
+export type IdentifierIssue = {
+  row: number;
+  employee: Employee;
+  reason: 'missing' | 'duplicate';
 };
