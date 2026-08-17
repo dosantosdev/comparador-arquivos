@@ -1,122 +1,117 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+import { useState } from 'react';
+import './App.css';
+import ComparisonResult from './components/ComparisonResult';
+import { readExcelFile } from './services/excelReader';
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [previousFile, setPreviousFile] = useState<File | null>(null);
+  const [currentFile, setCurrentFile] = useState<File | null>(null);
+  const [showResult, setShowResult] = useState(false);
+
+  function handlePreviousFile(event: React.ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0] ?? null;
+
+    setPreviousFile(file);
+  }
+
+  function handleCurrentFile(event: React.ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0] ?? null;
+
+    setCurrentFile(file);
+  }
+
+  async function handleCompare() {
+    if (!previousFile || !currentFile) {
+      return;
+    }
+
+    try {
+      const previousData = await readExcelFile(previousFile);
+      const currentData = await readExcelFile(currentFile);
+
+      console.log('Arquivo anterior:', previousData);
+      console.log('Arquivo atual:', currentData);
+
+      setShowResult(true);
+    } catch (error) {
+      console.error('Erro ao ler os arquivos:', error);
+    }
+  }
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+    <main className="app">
+      <header className="header">
+        <h1>Comparador de Arquivos</h1>
 
-      <div className="ticks"></div>
+        <p>
+          Compare dois arquivos e identifique o que foi adicionado, removido ou
+          alterado.
+        </p>
+      </header>
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
+      <section className="upload-section">
+        <div className="file-card">
+          <h2>Arquivo anterior</h2>
+
+          <p>Selecione o arquivo utilizado anteriormente.</p>
+
+          <input
+            id="previous-file"
+            type="file"
+            accept=".xlsx,.csv"
+            onChange={handlePreviousFile}
+            hidden
+          />
+
+          <label htmlFor="previous-file" className="file-button">
+            Selecionar arquivo
+          </label>
+
+          {previousFile && (
+            <p className="selected-file">📄 {previousFile.name}</p>
+          )}
         </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
+
+        <div className="file-card">
+          <h2>Arquivo atual</h2>
+
+          <p>Selecione o arquivo que deseja comparar.</p>
+
+          <input
+            id="current-file"
+            type="file"
+            accept=".xlsx,.csv"
+            onChange={handleCurrentFile}
+            hidden
+          />
+
+          <label htmlFor="current-file" className="file-button">
+            Selecionar arquivo
+          </label>
+
+          {currentFile && (
+            <p className="selected-file">📄 {currentFile.name}</p>
+          )}
         </div>
       </section>
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+      <button
+        className="compare-button"
+        type="button"
+        disabled={!previousFile || !currentFile}
+        onClick={handleCompare}
+      >
+        Comparar arquivos
+      </button>
+
+      {showResult && (
+        <ComparisonResult
+          previousFile={previousFile}
+          currentFile={currentFile}
+        />
+      )}
+    </main>
+  );
 }
 
-export default App
+export default App;
