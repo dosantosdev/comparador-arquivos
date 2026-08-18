@@ -1,5 +1,3 @@
-import { normalizeIdentifier } from '../utils/identifier';
-
 import type {
   ComparisonResult,
   Employee,
@@ -8,13 +6,9 @@ import type {
   ModifiedField,
 } from '../types/comparison';
 
-function normalizeValue(value: unknown): string {
-  return String(value ?? '')
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .trim()
-    .toLowerCase();
-}
+import { normalizeComparisonValue } from '../utils/valueNormalizer';
+
+import { normalizeIdentifier } from '../utils/identifier';
 
 function compareFields(
   previous: Employee,
@@ -24,8 +18,9 @@ function compareFields(
   const changes: ModifiedField[] = [];
 
   comparisonFields.forEach((field) => {
-    const oldValue = normalizeValue(previous[field]);
-    const newValue = normalizeValue(current[field]);
+    const oldValue = normalizeComparisonValue(previous[field], field);
+
+    const newValue = normalizeComparisonValue(current[field], field);
 
     if (oldValue !== newValue) {
       changes.push({
