@@ -32,3 +32,8 @@ export type IdentifierIssue = {
   employee: Employee;
   reason: 'missing' | 'duplicate';
 };
+
+export type ParsedExcelFile = {
+  employees: Employee[];
+  fieldLabels: Record<string, string>;
+};

@@ -1,17 +1,38 @@
 import { readSheet } from 'read-excel-file/browser';
 
-import type { Employee } from '../types/comparison';
+import type { Employee, ParsedExcelFile } from '../types/comparison';
+
 import { detectField } from '../utils/fieldDetector';
+
 import { normalizeCpf, normalizeDate } from '../utils/normalizer';
 
-export async function readExcelFile(file: File): Promise<Employee[]> {
+export async function readExcelFile(file: File): Promise<ParsedExcelFile> {
   const rows = await readSheet(file);
 
   if (rows.length === 0) {
-    return [];
+    return {
+      employees: [],
+      fieldLabels: {},
+    };
   }
 
   const headers = rows[0];
+
+  const fieldLabels: Record<string, string> = {};
+
+  headers.forEach((header) => {
+    const originalHeader = String(header ?? '').trim();
+
+    if (!originalHeader) {
+      return;
+    }
+
+    const field = detectField(originalHeader);
+
+    if (!fieldLabels[field]) {
+      fieldLabels[field] = originalHeader;
+    }
+  });
 
   const employees = rows
     .slice(1)
@@ -25,21 +46,25 @@ export async function readExcelFile(file: File): Promise<Employee[]> {
 
         if (field === 'name') {
           employee.name = String(value ?? '').trim();
+
           return;
         }
 
         if (field === 'cpf') {
           employee.cpf = normalizeCpf(value);
+
           return;
         }
 
         if (field === 'admissionDate') {
           employee.admissionDate = normalizeDate(value);
+
           return;
         }
 
         if (field === 'dismissalDate') {
           employee.dismissalDate = normalizeDate(value);
+
           return;
         }
 
@@ -49,5 +74,8 @@ export async function readExcelFile(file: File): Promise<Employee[]> {
       return employee;
     });
 
-  return employees;
+  return {
+    employees,
+    fieldLabels,
+  };
 }

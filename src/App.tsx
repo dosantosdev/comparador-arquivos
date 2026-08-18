@@ -17,11 +17,22 @@ function App() {
   const [previousFile, setPreviousFile] = useState<File | null>(null);
   const [currentFile, setCurrentFile] = useState<File | null>(null);
   const [showResult, setShowResult] = useState(false);
+
   const [previousData, setPreviousData] = useState<Employee[]>([]);
   const [currentData, setCurrentData] = useState<Employee[]>([]);
+
+  const [previousFieldLabels, setPreviousFieldLabels] = useState<
+    Record<string, string>
+  >({});
+
+  const [currentFieldLabels, setCurrentFieldLabels] = useState<
+    Record<string, string>
+  >({});
+
   const [comparison, setComparison] = useState<ComparisonResultType | null>(
     null,
   );
+
   const [selectedIdentifier, setSelectedIdentifier] = useState('cpf');
   const [selectedFields, setSelectedFields] = useState<string[]>([]);
   const [showConfig, setShowConfig] = useState(false);
@@ -54,13 +65,19 @@ function App() {
     }
 
     try {
-      const previousRows = await readExcelFile(previousFile);
-      const currentRows = await readExcelFile(currentFile);
+      const previousResult = await readExcelFile(previousFile);
+      const currentResult = await readExcelFile(currentFile);
 
-      setPreviousData(previousRows);
-      setCurrentData(currentRows);
+      setPreviousData(previousResult.employees);
+      setCurrentData(currentResult.employees);
 
-      const fields = getAvailableFields(previousRows, currentRows);
+      setPreviousFieldLabels(previousResult.fieldLabels);
+      setCurrentFieldLabels(currentResult.fieldLabels);
+
+      const fields = getAvailableFields(
+        previousResult.employees,
+        currentResult.employees,
+      );
 
       setSelectedFields(fields);
 
@@ -187,6 +204,8 @@ function App() {
           <ComparisonResult
             previousData={previousData}
             currentData={currentData}
+            previousFieldLabels={previousFieldLabels}
+            currentFieldLabels={currentFieldLabels}
           />
         </>
       )}

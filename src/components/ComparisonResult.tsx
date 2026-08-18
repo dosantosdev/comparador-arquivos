@@ -3,21 +3,9 @@ import type { Employee } from '../types/comparison';
 type ComparisonResultProps = {
   previousData: Employee[];
   currentData: Employee[];
+  previousFieldLabels: Record<string, string>;
+  currentFieldLabels: Record<string, string>;
 };
-
-const fieldLabels: Record<string, string> = {
-  name: 'Nome',
-  cpf: 'CPF',
-  admissionDate: 'Data admissão',
-  dismissalDate: 'Data demissão',
-  plan: 'Plano',
-  status: 'Situação',
-  value: 'Valor',
-};
-
-function formatFieldLabel(field: string): string {
-  return fieldLabels[field] ?? field;
-}
 
 function formatDisplayValue(value: unknown): string {
   if (value === null || value === undefined || value === '') {
@@ -38,6 +26,8 @@ function formatDisplayValue(value: unknown): string {
 function ComparisonResult({
   previousData,
   currentData,
+  previousFieldLabels,
+  currentFieldLabels,
 }: ComparisonResultProps) {
   const fields = Array.from(
     new Set([
@@ -45,6 +35,13 @@ function ComparisonResult({
       ...currentData.flatMap((employee) => Object.keys(employee)),
     ]),
   );
+
+  function getFieldLabel(
+    field: string,
+    labels: Record<string, string>,
+  ): string {
+    return labels[field] ?? field;
+  }
 
   return (
     <section className="result-section">
@@ -71,7 +68,7 @@ function ComparisonResult({
           <thead>
             <tr>
               {fields.map((field) => (
-                <th key={field}>{formatFieldLabel(field)}</th>
+                <th key={field}>{getFieldLabel(field, previousFieldLabels)}</th>
               ))}
             </tr>
           </thead>
@@ -95,7 +92,7 @@ function ComparisonResult({
           <thead>
             <tr>
               {fields.map((field) => (
-                <th key={field}>{formatFieldLabel(field)}</th>
+                <th key={field}>{getFieldLabel(field, currentFieldLabels)}</th>
               ))}
             </tr>
           </thead>
