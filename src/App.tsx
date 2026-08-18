@@ -7,6 +7,7 @@ import ComparisonConfig from './components/ComparisonConfig';
 import IdentifierIssues from './components/IdentifierIssues';
 import { getAvailableFields } from './utils/fieldUtils';
 import { readExcelFile } from './services/excelReader';
+import { exportComparisonResult } from './services/exportService';
 import { validateIdentifier } from './utils/comparisonValidator';
 import type {
   ComparisonResult as ComparisonResultType,
@@ -167,6 +168,14 @@ function App() {
     setShowResult(true);
   }
 
+  function handleExport() {
+    if (!comparison) {
+      return;
+    }
+
+    exportComparisonResult(comparison, previousData, currentData);
+  }
+
   const availableFields = getAvailableFields(previousData, currentData);
 
   return (
@@ -272,6 +281,14 @@ function App() {
 
       {showResult && comparison && (
         <>
+          <button
+            type="button"
+            className="export-button"
+            onClick={handleExport}
+          >
+            Exportar resultado
+          </button>
+
           <ComparisonSummary comparison={comparison} />
 
           <IdentifierIssues issues={comparison.identifierIssues} />
