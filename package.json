@@ -1,7 +1,9 @@
 {
   "name": "comparador-arquivos",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
+  "description": "Aplicativo desktop para comparar arquivos e identificar registros adicionados, removidos e alterados.",
+  "author": "DoSantos Dev",
   "main": "electron/main.cjs",
   "type": "module",
   "scripts": {
@@ -42,7 +44,8 @@
       "output": "release"
     },
     "win": {
-      "target": "nsis"
+      "target": "nsis",
+      "icon": "build/icon.ico"
     }
   }
 }
