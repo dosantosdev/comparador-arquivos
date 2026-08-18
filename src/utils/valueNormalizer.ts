@@ -57,6 +57,55 @@ function normalizeDate(value: unknown): string {
   return normalizeText(value);
 }
 
+function normalizeNumber(value: unknown): string {
+  if (value === null || value === undefined) {
+    return '';
+  }
+
+  if (typeof value === 'number') {
+    if (Number.isNaN(value)) {
+      return '';
+    }
+
+    return String(value);
+  }
+
+  let text = String(value).trim();
+
+  if (!text) {
+    return '';
+  }
+
+  text = text.replace(/R\$/gi, '').replace(/\s/g, '');
+
+  const hasComma = text.includes(',');
+  const hasDot = text.includes('.');
+
+  if (hasComma && hasDot) {
+    // Exemplo: 1.234,56
+    text = text.replace(/\./g, '').replace(',', '.');
+  } else if (hasComma) {
+    // Exemplo: 1234,56
+    text = text.replace(',', '.');
+  } else if (hasDot) {
+    // Exemplo: 1234.56
+    const decimalPlaces = text.split('.')[1]?.length ?? 0;
+
+    if (decimalPlaces > 2) {
+      // Exemplo: 1.234 → interpreta como milhar
+      text = text.replace(/\./g, '');
+    }
+  }
+
+  const number = Number(text);
+
+  if (Number.isNaN(number)) {
+    return normalizeText(value);
+  }
+
+  return String(number);
+}
+
 export function normalizeComparisonValue(
   value: unknown,
   field: string,
@@ -67,6 +116,10 @@ export function normalizeComparisonValue(
 
   if (field === 'name') {
     return normalizeText(value);
+  }
+
+  if (field === 'value') {
+    return normalizeNumber(value);
   }
 
   return normalizeText(value);
