@@ -20,6 +20,10 @@ const fieldAliases: Record<string, FieldName> = {
 
   'nome colaborador': 'name',
 
+  'nome do funcionario': 'name',
+
+  'nome do colaborador': 'name',
+
   // CPF
 
   cpf: 'cpf',
@@ -55,6 +59,10 @@ const fieldAliases: Record<string, FieldName> = {
   'data entrada': 'admissionDate',
 
   'data de entrada': 'admissionDate',
+
+  'data contratacao': 'admissionDate',
+
+  'data de contratacao': 'admissionDate',
 
   // Demissão
 
@@ -102,9 +110,17 @@ const fieldAliases: Record<string, FieldName> = {
 
   'situacao colaborador': 'status',
 
+  'situacao do funcionario': 'status',
+
+  'situacao do colaborador': 'status',
+
   'status funcionario': 'status',
 
   'status colaborador': 'status',
+
+  'status do funcionario': 'status',
+
+  'status do colaborador': 'status',
 
   // Valor
 
@@ -145,15 +161,16 @@ export function detectField(header: unknown): FieldName {
 
   if (
     normalizedHeader.includes('nome') ||
-    normalizedHeader.includes('funcionario') ||
-    normalizedHeader.includes('colaborador')
+    normalizedHeader === 'funcionario' ||
+    normalizedHeader === 'colaborador'
   ) {
     return 'name';
   }
 
   if (
     normalizedHeader.includes('admissao') ||
-    normalizedHeader.includes('entrada')
+    normalizedHeader.includes('entrada') ||
+    normalizedHeader.includes('contratacao')
   ) {
     return 'admissionDate';
   }

@@ -2,6 +2,8 @@ import type { ComparisonResult, Employee } from '../types/comparison';
 
 type ComparisonDetailsProps = {
   comparison: ComparisonResult;
+  previousFieldLabels: Record<string, string>;
+  currentFieldLabels: Record<string, string>;
 };
 
 function formatDate(value: unknown): string {
@@ -28,9 +30,22 @@ function formatFieldName(field: string): string {
     dismissalDate: 'Data de demissão',
     status: 'Situação',
     plan: 'Plano',
+    value: 'Valor',
   };
 
   return fieldNames[field] ?? field;
+}
+
+function getDisplayFieldName(
+  field: string,
+  previousFieldLabels: Record<string, string>,
+  currentFieldLabels: Record<string, string>,
+): string {
+  return (
+    currentFieldLabels[field] ??
+    previousFieldLabels[field] ??
+    formatFieldName(field)
+  );
 }
 
 function formatValue(field: string, value: unknown): string {
@@ -55,7 +70,11 @@ function EmployeeInfo({ employee }: { employee: Employee }) {
   );
 }
 
-function ComparisonDetails({ comparison }: ComparisonDetailsProps) {
+function ComparisonDetails({
+  comparison,
+  previousFieldLabels,
+  currentFieldLabels,
+}: ComparisonDetailsProps) {
   return (
     <section className="comparison-details">
       <h2>Detalhes da comparação</h2>
@@ -151,11 +170,18 @@ function ComparisonDetails({ comparison }: ComparisonDetailsProps) {
                       className="change-item"
                       key={`${change.field}-${changeIndex}`}
                     >
-                      <strong>{formatFieldName(change.field)}</strong>
+                      <strong>
+                        {getDisplayFieldName(
+                          change.field,
+                          previousFieldLabels,
+                          currentFieldLabels,
+                        )}
+                      </strong>
 
                       <div className="change-values">
                         <div>
                           <span>Antes</span>
+
                           <strong>
                             {formatValue(change.field, change.oldValue)}
                           </strong>
@@ -163,6 +189,7 @@ function ComparisonDetails({ comparison }: ComparisonDetailsProps) {
 
                         <div>
                           <span>Depois</span>
+
                           <strong>
                             {formatValue(change.field, change.newValue)}
                           </strong>

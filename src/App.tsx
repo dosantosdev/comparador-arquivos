@@ -199,7 +199,11 @@ function App() {
 
           <IdentifierIssues issues={comparison.identifierIssues} />
 
-          <ComparisonDetails comparison={comparison} />
+          <ComparisonDetails
+            comparison={comparison}
+            previousFieldLabels={previousFieldLabels}
+            currentFieldLabels={currentFieldLabels}
+          />
 
           <ComparisonResult
             previousData={previousData}
