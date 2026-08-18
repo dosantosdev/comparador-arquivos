@@ -8,6 +8,95 @@ function normalizeText(value: unknown): string {
     .toLowerCase();
 }
 
+function normalizeName(value: unknown): string {
+  return String(value ?? '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/0/g, 'o')
+    .replace(/\s+/g, '')
+    .toLowerCase()
+    .trim();
+}
+
+function calculateLevenshteinDistance(first: string, second: string): number {
+  const previousRow = Array.from(
+    { length: second.length + 1 },
+    (_, index) => index,
+  );
+
+  for (let i = 1; i <= first.length; i += 1) {
+    const currentRow = [i];
+
+    for (let j = 1; j <= second.length; j += 1) {
+      const insertion = currentRow[j - 1] + 1;
+      const deletion = previousRow[j] + 1;
+      const substitution =
+        previousRow[j - 1] + (first[i - 1] === second[j - 1] ? 0 : 1);
+
+      currentRow.push(Math.min(insertion, deletion, substitution));
+    }
+
+    for (let j = 0; j < currentRow.length; j += 1) {
+      previousRow[j] = currentRow[j];
+    }
+  }
+
+  return previousRow[second.length];
+}
+
+function hasOcrSuspiciousCharacter(value: unknown): boolean {
+  return /[01!]/.test(String(value ?? ''));
+}
+
+export function areNamesEquivalent(
+  previous: unknown,
+  current: unknown,
+): boolean {
+  const previousText = String(previous ?? '');
+  const currentText = String(current ?? '');
+
+  const normalizedPrevious = normalizeName(previousText);
+  const normalizedCurrent = normalizeName(currentText);
+
+  if (normalizedPrevious === normalizedCurrent) {
+    return true;
+  }
+
+  /*
+   * Só aplicamos tolerância adicional quando pelo menos
+   * um dos nomes apresenta sinais típicos de conversão
+   * de PDF/OCR.
+   */
+  if (
+    !hasOcrSuspiciousCharacter(previousText) &&
+    !hasOcrSuspiciousCharacter(currentText)
+  ) {
+    return false;
+  }
+
+  const distance = calculateLevenshteinDistance(
+    normalizedPrevious,
+    normalizedCurrent,
+  );
+
+  const maximumLength = Math.max(
+    normalizedPrevious.length,
+    normalizedCurrent.length,
+  );
+
+  if (maximumLength === 0) {
+    return true;
+  }
+
+  const differenceRatio = distance / maximumLength;
+
+  /*
+   * Aceita pequenas diferenças quando existe indício
+   * de erro de OCR/conversão.
+   */
+  return distance <= 3 && differenceRatio <= 0.12;
+}
+
 function normalizeDate(value: unknown): string {
   if (value === null || value === undefined || value === '') {
     return '';
@@ -106,6 +195,34 @@ function normalizeNumber(value: unknown): string {
   return String(number);
 }
 
+function normalizeCpf(value: unknown): string {
+  if (value === null || value === undefined || value === '') {
+    return '';
+  }
+
+  const cpf = String(value).replace(/\D/g, '');
+
+  if (!cpf || /^0+$/.test(cpf)) {
+    return '';
+  }
+
+  return cpf.padStart(11, '0');
+}
+
+function normalizeSex(value: unknown): string {
+  const text = normalizeText(value);
+
+  if (text === 'm' || text === 'masculino') {
+    return 'm';
+  }
+
+  if (text === 'f' || text === 'feminino') {
+    return 'f';
+  }
+
+  return text;
+}
+
 export function normalizeComparisonValue(
   value: unknown,
   field: string,
@@ -114,8 +231,16 @@ export function normalizeComparisonValue(
     return normalizeDate(value);
   }
 
+  if (field === 'cpf') {
+    return normalizeCpf(value);
+  }
+
   if (field === 'name') {
-    return normalizeText(value);
+    return normalizeName(value);
+  }
+
+  if (field === 'sex' || field === 'sexo') {
+    return normalizeSex(value);
   }
 
   if (field === 'value') {

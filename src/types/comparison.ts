@@ -36,4 +36,6 @@ export type IdentifierIssue = {
 export type ParsedExcelFile = {
   employees: Employee[];
   fieldLabels: Record<string, string>;
+  hasHeader: boolean;
+  structureDetected: boolean;
 };

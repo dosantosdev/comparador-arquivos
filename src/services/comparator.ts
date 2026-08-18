@@ -6,7 +6,10 @@ import type {
   ModifiedField,
 } from '../types/comparison';
 
-import { normalizeComparisonValue } from '../utils/valueNormalizer';
+import {
+  areNamesEquivalent,
+  normalizeComparisonValue,
+} from '../utils/valueNormalizer';
 
 import { normalizeIdentifier } from '../utils/identifier';
 
@@ -22,7 +25,12 @@ function compareFields(
 
     const newValue = normalizeComparisonValue(current[field], field);
 
-    if (oldValue !== newValue) {
+    const namesAreEquivalent =
+      field === 'name'
+        ? areNamesEquivalent(previous[field], current[field])
+        : false;
+
+    if (oldValue !== newValue && !namesAreEquivalent) {
       changes.push({
         field,
         oldValue: previous[field],

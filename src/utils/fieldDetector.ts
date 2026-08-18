@@ -1,146 +1,106 @@
 import { normalizeText } from './normalizer';
 
 export type FieldName =
-  'name' | 'cpf' | 'admissionDate' | 'dismissalDate' | string;
+  | 'name'
+  | 'cpf'
+  | 'admissionDate'
+  | 'dismissalDate'
+  | 'plan'
+  | 'status'
+  | 'value'
+  | 'sex'
+  | 'activity'
+  | string;
 
 const fieldAliases: Record<string, FieldName> = {
   // Nome
-
   nome: 'name',
-
   'nome completo': 'name',
-
   funcionario: 'name',
-
   'funcionario completo': 'name',
-
   colaborador: 'name',
-
   'nome funcionario': 'name',
-
   'nome colaborador': 'name',
-
   'nome do funcionario': 'name',
-
   'nome do colaborador': 'name',
 
   // CPF
-
   cpf: 'cpf',
-
   'cpf funcionario': 'cpf',
-
   'cpf colaborador': 'cpf',
-
   'numero cpf': 'cpf',
-
   'numero do cpf': 'cpf',
-
   'cpf do funcionario': 'cpf',
-
   'cpf do colaborador': 'cpf',
-
   documento: 'cpf',
-
   'documento cpf': 'cpf',
 
   // Admissão
-
   admissao: 'admissionDate',
-
   'data admissao': 'admissionDate',
-
   'dt admissao': 'admissionDate',
-
   'data de admissao': 'admissionDate',
-
   'data da admissao': 'admissionDate',
-
   'data entrada': 'admissionDate',
-
   'data de entrada': 'admissionDate',
-
   'data contratacao': 'admissionDate',
-
   'data de contratacao': 'admissionDate',
 
   // Demissão
-
   demissao: 'dismissalDate',
-
   'data demissao': 'dismissalDate',
-
   'dt demissao': 'dismissalDate',
-
   'data de demissao': 'dismissalDate',
-
   'data da demissao': 'dismissalDate',
-
   desligamento: 'dismissalDate',
-
   'data desligamento': 'dismissalDate',
-
   'data de desligamento': 'dismissalDate',
-
   'data saida': 'dismissalDate',
-
   'data de saida': 'dismissalDate',
 
   // Plano
-
   plano: 'plan',
-
   'plano saude': 'plan',
-
   'plano de saude': 'plan',
-
   convenio: 'plan',
-
   'convenio medico': 'plan',
-
   'convenio de saude': 'plan',
 
   // Situação
-
   situacao: 'status',
-
   status: 'status',
-
   'situacao funcionario': 'status',
-
   'situacao colaborador': 'status',
-
   'situacao do funcionario': 'status',
-
   'situacao do colaborador': 'status',
-
   'status funcionario': 'status',
-
   'status colaborador': 'status',
-
   'status do funcionario': 'status',
-
   'status do colaborador': 'status',
 
   // Valor
-
   valor: 'value',
-
   'valor plano': 'value',
-
   'valor do plano': 'value',
-
   'valor mensal': 'value',
-
   mensalidade: 'value',
-
   preco: 'value',
-
   custo: 'value',
-
   'valor convenio': 'value',
-
   'valor do convenio': 'value',
+
+  // Sexo
+  sexo: 'sex',
+  genero: 'sex',
+  gênero: 'sex',
+
+  // Atividade
+  atividade: 'activity',
+  'atividade profissional': 'activity',
+  'tipo de atividade': 'activity',
+  funcao: 'activity',
+  função: 'activity',
+  cargo: 'activity',
 };
 
 export function detectField(header: unknown): FieldName {
@@ -204,6 +164,18 @@ export function detectField(header: unknown): FieldName {
     normalizedHeader.includes('custo')
   ) {
     return 'value';
+  }
+
+  if (normalizedHeader === 'sexo' || normalizedHeader === 'genero') {
+    return 'sex';
+  }
+
+  if (
+    normalizedHeader.includes('atividade') ||
+    normalizedHeader.includes('funcao') ||
+    normalizedHeader.includes('cargo')
+  ) {
+    return 'activity';
   }
 
   return normalizedHeader;

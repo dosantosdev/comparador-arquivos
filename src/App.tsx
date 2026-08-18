@@ -79,6 +79,26 @@ function App() {
       const previousResult = await readExcelFile(previousFile);
       const currentResult = await readExcelFile(currentFile);
 
+      if (!previousResult.structureDetected) {
+        setFileError(
+          `Não foi possível identificar a estrutura do arquivo anterior "${previousFile.name}". O arquivo pode estar sem cabeçalho ou não possui dados suficientes para identificar as colunas.`,
+        );
+
+        setShowConfig(false);
+
+        return;
+      }
+
+      if (!currentResult.structureDetected) {
+        setFileError(
+          `Não foi possível identificar a estrutura do arquivo atual "${currentFile.name}". O arquivo pode estar sem cabeçalho ou não possui dados suficientes para identificar as colunas.`,
+        );
+
+        setShowConfig(false);
+
+        return;
+      }
+
       if (previousResult.employees.length === 0) {
         setFileError(
           `O arquivo anterior "${previousFile.name}" não possui registros para comparação.`,

@@ -16,7 +16,7 @@ export function normalizeIdentifier(value: unknown, field: string): string {
       return '';
     }
 
-    return cpf;
+    return cpf.padStart(11, '0');
   }
 
   return normalizedValue
