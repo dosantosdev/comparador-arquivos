@@ -7,9 +7,11 @@ export function normalizeText(value: unknown): string {
 }
 
 export function normalizeCpf(value: unknown): string {
-  const cpf = String(value ?? '').replace(/\D/g, '');
+  if (value === null || value === undefined || String(value).trim() === '') {
+    return '';
+  }
 
-  return cpf.padStart(11, '0');
+  return String(value).replace(/\D/g, '');
 }
 
 export function normalizeDate(value: unknown): string | null {

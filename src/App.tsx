@@ -7,6 +7,7 @@ import ComparisonConfig from './components/ComparisonConfig';
 import IdentifierIssues from './components/IdentifierIssues';
 import { getAvailableFields } from './utils/fieldUtils';
 import { readExcelFile } from './services/excelReader';
+import { validateIdentifier } from './utils/comparisonValidator';
 import type {
   ComparisonResult as ComparisonResultType,
   Employee,
@@ -32,6 +33,7 @@ function App() {
   const [comparison, setComparison] = useState<ComparisonResultType | null>(
     null,
   );
+  const [validationError, setValidationError] = useState<string | null>(null);
 
   const [selectedIdentifier, setSelectedIdentifier] = useState('cpf');
   const [selectedFields, setSelectedFields] = useState<string[]>([]);
@@ -93,13 +95,21 @@ function App() {
   }
 
   function handleCompare() {
-    if (
-      previousData.length === 0 ||
-      currentData.length === 0 ||
-      !selectedIdentifier
-    ) {
+    const error = validateIdentifier(
+      previousData,
+      currentData,
+      selectedIdentifier,
+    );
+
+    if (error) {
+      setValidationError(error);
+      setShowResult(false);
+      setComparison(null);
+
       return;
     }
+
+    setValidationError(null);
 
     const result = compareEmployees(
       previousData,
@@ -191,6 +201,18 @@ function App() {
           onFieldToggle={handleFieldToggle}
           onCompare={handleCompare}
         />
+      )}
+
+      {validationError && (
+        <section className="validation-error">
+          <div className="validation-error-icon">!</div>
+
+          <div>
+            <h3>Não foi possível realizar a comparação</h3>
+
+            <p>{validationError}</p>
+          </div>
+        </section>
       )}
 
       {showResult && comparison && (

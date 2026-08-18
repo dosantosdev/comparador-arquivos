@@ -515,3 +515,37 @@ td {
   color: #666;
   font-size: 0.9rem;
 }
+
+.validation-error {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  margin-top: 24px;
+  padding: 20px 24px;
+  border: 1px solid #f0b429;
+  border-radius: 12px;
+  background: #fff8e6;
+}
+
+.validation-error-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #f0b429;
+  color: white;
+  font-weight: bold;
+}
+
+.validation-error h3 {
+  margin: 0 0 6px;
+  font-size: 18px;
+}
+
+.validation-error p {
+  margin: 0;
+  color: #555;
+}
