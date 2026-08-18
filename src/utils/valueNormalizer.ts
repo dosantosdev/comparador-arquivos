@@ -2,6 +2,7 @@ function normalizeText(value: unknown): string {
   return String(value ?? '')
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[.,]/g, '')
     .replace(/\s+/g, ' ')
     .trim()
     .toLowerCase();
@@ -62,6 +63,10 @@ export function normalizeComparisonValue(
 ): string {
   if (field === 'admissionDate' || field === 'dismissalDate') {
     return normalizeDate(value);
+  }
+
+  if (field === 'name') {
+    return normalizeText(value);
   }
 
   return normalizeText(value);
