@@ -549,3 +549,36 @@ td {
   margin: 0;
   color: #555;
 }
+.file-error {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  margin-top: 24px;
+  padding: 20px 24px;
+  border: 1px solid #d9534f;
+  border-radius: 12px;
+  background: #fff1f0;
+}
+
+.file-error-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #d9534f;
+  color: white;
+  font-weight: bold;
+}
+
+.file-error h3 {
+  margin: 0 0 6px;
+  font-size: 18px;
+}
+
+.file-error p {
+  margin: 0;
+  color: #555;
+}

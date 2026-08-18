@@ -34,6 +34,7 @@ function App() {
     null,
   );
   const [validationError, setValidationError] = useState<string | null>(null);
+  const [fileError, setFileError] = useState<string | null>(null);
 
   const [selectedIdentifier, setSelectedIdentifier] = useState('cpf');
   const [selectedFields, setSelectedFields] = useState<string[]>([]);
@@ -43,12 +44,14 @@ function App() {
     const file = event.target.files?.[0] ?? null;
 
     setPreviousFile(file);
+    setFileError(null);
   }
 
   function handleCurrentFile(event: React.ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0] ?? null;
 
     setCurrentFile(file);
+    setFileError(null);
   }
 
   function handleFieldToggle(field: string) {
@@ -66,9 +69,34 @@ function App() {
       return;
     }
 
+    setFileError(null);
+    setValidationError(null);
+    setShowResult(false);
+    setComparison(null);
+
     try {
       const previousResult = await readExcelFile(previousFile);
       const currentResult = await readExcelFile(currentFile);
+
+      if (previousResult.employees.length === 0) {
+        setFileError(
+          `O arquivo anterior "${previousFile.name}" não possui registros para comparação.`,
+        );
+
+        setShowConfig(false);
+
+        return;
+      }
+
+      if (currentResult.employees.length === 0) {
+        setFileError(
+          `O arquivo atual "${currentFile.name}" não possui registros para comparação.`,
+        );
+
+        setShowConfig(false);
+
+        return;
+      }
 
       setPreviousData(previousResult.employees);
       setCurrentData(currentResult.employees);
@@ -81,6 +109,16 @@ function App() {
         currentResult.employees,
       );
 
+      if (fields.length === 0) {
+        setFileError(
+          'Não foi possível identificar campos válidos nos arquivos selecionados.',
+        );
+
+        setShowConfig(false);
+
+        return;
+      }
+
       setSelectedFields(fields);
 
       if (!fields.includes(selectedIdentifier)) {
@@ -88,9 +126,14 @@ function App() {
       }
 
       setShowConfig(true);
-      setShowResult(false);
     } catch (error) {
       console.error('Erro ao preparar os arquivos:', error);
+
+      setShowConfig(false);
+
+      setFileError(
+        'Não foi possível ler um dos arquivos selecionados. Verifique se os arquivos estão em um formato válido e tente novamente.',
+      );
     }
   }
 
@@ -191,6 +234,18 @@ function App() {
       >
         Preparar comparação
       </button>
+
+      {fileError && (
+        <section className="file-error">
+          <div className="file-error-icon">!</div>
+
+          <div>
+            <h3>Não foi possível preparar os arquivos</h3>
+
+            <p>{fileError}</p>
+          </div>
+        </section>
+      )}
 
       {showConfig && availableFields.length > 0 && (
         <ComparisonConfig
