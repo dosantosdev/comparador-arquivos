@@ -176,6 +176,28 @@ function App() {
     exportComparisonResult(comparison, previousData, currentData);
   }
 
+  function handleNewComparison() {
+    setPreviousFile(null);
+    setCurrentFile(null);
+
+    setPreviousData([]);
+    setCurrentData([]);
+
+    setPreviousFieldLabels({});
+    setCurrentFieldLabels({});
+
+    setComparison(null);
+
+    setValidationError(null);
+    setFileError(null);
+
+    setSelectedIdentifier('cpf');
+    setSelectedFields([]);
+
+    setShowConfig(false);
+    setShowResult(false);
+  }
+
   const availableFields = getAvailableFields(previousData, currentData);
 
   return (
@@ -281,13 +303,23 @@ function App() {
 
       {showResult && comparison && (
         <>
-          <button
-            type="button"
-            className="export-button"
-            onClick={handleExport}
-          >
-            Exportar resultado
-          </button>
+          <div className="result-actions">
+            <button
+              type="button"
+              className="export-button"
+              onClick={handleExport}
+            >
+              Exportar resultado
+            </button>
+
+            <button
+              type="button"
+              className="new-comparison-button"
+              onClick={handleNewComparison}
+            >
+              ↩ Fazer nova comparação
+            </button>
+          </div>
 
           <ComparisonSummary comparison={comparison} />
 
